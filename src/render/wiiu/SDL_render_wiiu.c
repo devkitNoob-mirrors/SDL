@@ -327,8 +327,8 @@ void WIIU_FrameDone(WIIU_RenderData *r)
         GX2WaitTimeStamp(r->lastFrameTimestamp);
     }
 
-    /* Free render data */
-    WIIU_FreeRenderData(r, r->actlist);
+    /* Free inactive render data, now that we're sure the GPU is no longer using it */
+    WIIU_FreeRenderData(r, !r->actlist);
     r->actlist = !r->actlist;
 }
 
