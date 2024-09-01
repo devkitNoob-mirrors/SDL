@@ -128,9 +128,9 @@ int WIIU_SDL_LockTexture(SDL_Renderer * renderer, SDL_Texture * texture,
     Uint32 BytesPerPixel = SDL_BYTESPERPIXEL(texture->format);
     void* pixel_buffer;
 
-    if (videodata->hasForeground) {
+    if (videodata->hasForeground && WIIU_TextureInUse(data, tdata)) {
         /* Wait for the texture rendering to finish */
-        WIIU_TextureCheckWaitRendering(data, tdata);
+        WIIU_TextureWaitDone(data, tdata);
     }
 
     pixel_buffer = GX2RLockSurfaceEx(&tdata->texture.surface, 0, 0);
@@ -204,9 +204,9 @@ void WIIU_SDL_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     data = (WIIU_RenderData *) renderer->driverdata;
     tdata = (WIIU_TextureData *) texture->driverdata;
 
-    /* Wait for the texture rendering to finish */
-    if (videodata->hasForeground) {
-        WIIU_TextureCheckWaitRendering(data, tdata);
+    if (videodata->hasForeground && WIIU_TextureInUse(data, tdata)) {
+        /* Wait for the texture rendering to finish */
+        WIIU_TextureWaitDone(data, tdata);
     }
 
     if (data->drawState.texture == texture) {
