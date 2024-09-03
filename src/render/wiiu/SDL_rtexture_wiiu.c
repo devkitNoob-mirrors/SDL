@@ -204,9 +204,16 @@ void WIIU_SDL_DestroyTexture(SDL_Renderer * renderer, SDL_Texture * texture)
     data = (WIIU_RenderData *) renderer->driverdata;
     tdata = (WIIU_TextureData *) texture->driverdata;
 
-    if (videodata->hasForeground && WIIU_TextureInUse(data, tdata)) {
+    if (videodata->hasForeground) {
         /* Wait for the texture rendering to finish */
-        WIIU_TextureWaitDone(data, tdata);
+        if (WIIU_TextureInUse(data, tdata)) {
+            WIIU_TextureWaitDone(data, tdata);
+        }
+
+        /* When destroying a render target wait for the GPU to catch up completely */
+        if (texture->access == SDL_TEXTUREACCESS_TARGET) {
+            GX2DrawDone();
+        }
     }
 
     if (data->drawState.texture == texture) {
